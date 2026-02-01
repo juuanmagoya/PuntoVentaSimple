@@ -43,24 +43,24 @@
 
   <!-- Main -->
   <main class="flex-1 p-4 md:p-6">
-    
-    <!-- Buscador -->
-    <div class="mb-4">
-      <input 
-        type="text" 
-        id="buscadorProductos"
-        placeholder="🔍 Buscar producto..."
-        class="w-full border p-2 rounded focus:outline-none focus:ring focus:ring-blue-300"
-      >
-    </div>
 
-    <!-- Mobile bar -->
+    <!-- Mobile header -->
     <div class="flex items-center justify-between mb-4 md:hidden">
       <button id="btnMenu" class="text-2xl">☰</button>
       <h1 class="text-xl font-bold">Productos</h1>
     </div>
 
     <h1 class="hidden md:block text-2xl font-bold mb-6">Productos</h1>
+
+    <!-- Buscador -->
+    <div class="mb-4">
+      <input 
+        type="text"
+        id="buscadorProductos"
+        placeholder="🔍 Buscar producto..."
+        class="w-full border p-2 rounded-lg focus:ring focus:ring-blue-300"
+      >
+    </div>
 
     <!-- Formulario -->
     <div class="bg-white p-4 md:p-6 rounded-2xl shadow mb-6">
@@ -98,10 +98,10 @@
 
       <h2 class="font-semibold mb-4 text-lg">📋 Productos</h2>
 
-      <!-- Mobile cards -->
+      <!-- Mobile -->
       <div id="listaMobile" class="space-y-3 md:hidden"></div>
 
-      <!-- Desktop table -->
+      <!-- Desktop -->
       <div class="hidden md:block overflow-x-auto">
         <table class="w-full border rounded-lg">
           <thead class="bg-gray-200">

@@ -148,14 +148,15 @@ function renderizarProductos(lista) {
   lista.forEach((p, index) => {
     // Calculamos ganancia
     const ganancia = p.precio_venta - p.precio_compra;
-    const porcentajeGanancia = p.precio_compra > 0 
-      ? ((ganancia / p.precio_compra) * 100).toFixed(1)
+    const porcentajeGanancia = p.precio_venta > 0 
+      ? ((ganancia / p.precio_venta) * 100).toFixed(1)
       : "0";
-    
+
     // Color para la ganancia
     let claseGanancia = "text-green-600 font-semibold";
     if (ganancia <= 0) claseGanancia = "text-red-600 font-semibold";
-    else if (ganancia < p.precio_compra * 0.3) claseGanancia = "text-yellow-600 font-semibold";
+    else if ((ganancia / p.precio_venta) < 0.3) claseGanancia = "text-yellow-600 font-semibold";
+    // Esto significa: si la ganancia es menos del 30% del precio de venta
 
     // Desktop
     const filaDesktop = document.createElement("tr");

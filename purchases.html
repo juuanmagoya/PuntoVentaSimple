@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kiosco App - Compras</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/dexie@latest/dist/dexie.js"></script>
+</head>
+
+<body class="bg-gray-100">
+
+<div class="flex min-h-screen">
+
+  <!-- Sidebar -->
+  <aside id="sidebar" class="fixed md:static inset-y-0 left-0 w-64 bg-gray-900 text-white p-4 transform -translate-x-full md:translate-x-0 transition-transform duration-300 z-50">
+
+    <h2 class="text-xl font-bold mb-6 text-center">🏪 Kiosco App</h2>
+
+    <nav class="space-y-2">
+      <a href="index.html" class="block px-4 py-3 rounded hover:bg-gray-700">📊 Dashboard</a>
+      <a href="products.html" class="block px-4 py-3 rounded hover:bg-gray-700">📦 Productos</a>
+      <a href="purchases.html" class="block px-4 py-3 rounded bg-gray-700">🛒 Compras</a>
+      <a href="sales.html" class="block px-4 py-3 rounded hover:bg-gray-700">💰 Ventas</a>
+    </nav>
+  </aside>
+
+  <div id="overlay" class="fixed inset-0 bg-black bg-opacity-40 hidden md:hidden"></div>
+
+  <!-- Main -->
+  <main class="flex-1 p-4 md:p-6">
+
+    <!-- Mobile bar -->
+    <div class="flex items-center justify-between mb-4 md:hidden">
+      <button id="btnMenu" class="text-2xl">☰</button>
+      <h1 class="text-xl font-bold">Compras</h1>
+    </div>
+
+    <h1 class="hidden md:block text-2xl font-bold mb-6">Compras de productos</h1>
+
+    <!-- Formulario -->
+    <div class="bg-white p-4 md:p-6 rounded-2xl shadow mb-6">
+
+      <h2 class="font-semibold mb-4 text-lg">➕ Agregar / Editar compra</h2>
+
+      <form id="formCompra" class="space-y-4 md:grid md:grid-cols-3 md:gap-4 md:space-y-0">
+
+        <input type="hidden" id="compraId">
+
+        <div>
+          <label class="text-sm text-gray-600">Producto</label>
+          <select id="productoSelect" class="border p-2 rounded-lg w-full" required></select>
+        </div>
+
+        <div>
+          <label class="text-sm text-gray-600">Cantidad</label>
+          <input id="cantidad" type="number" class="border p-2 rounded-lg w-full" required>
+        </div>
+
+        <div>
+          <label class="text-sm text-gray-600">Precio compra</label>
+          <input id="precioCompra" type="number" class="border p-2 rounded-lg w-full" required>
+        </div>
+
+        <div>
+          <label class="text-sm text-gray-600">Proveedor</label>
+          <input id="proveedor" type="text" class="border p-2 rounded-lg w-full" required>
+        </div>
+
+        <div>
+          <label class="text-sm text-gray-600">Fecha</label>
+          <input id="fecha" type="date" class="border p-2 rounded-lg w-full" required>
+        </div>
+
+        <button class="bg-green-600 hover:bg-green-700 text-white rounded-lg py-2 md:col-span-3">
+          Guardar compra
+        </button>
+
+      </form>
+    </div>
+
+    <!-- Listado -->
+    <div class="bg-white p-4 md:p-6 rounded-2xl shadow">
+
+      <h2 class="font-semibold mb-4 text-lg">📋 Compras registradas</h2>
+
+      <!-- Mobile cards -->
+      <div id="listaMobile" class="space-y-3 md:hidden"></div>
+
+      <!-- Desktop table -->
+      <div class="hidden md:block overflow-x-auto">
+        <table class="w-full border rounded-lg">
+          <thead class="bg-gray-200">
+            <tr>
+              <th class="p-2">Producto</th>
+              <th class="p-2">Cantidad</th>
+              <th class="p-2">Precio</th>
+              <th class="p-2">Proveedor</th>
+              <th class="p-2">Fecha</th>
+              <th class="p-2">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaCompras"></tbody>
+        </table>
+      </div>
+
+    </div>
+
+  </main>
+</div>
+
+<script type="module" src="js/db.js"></script>
+<script type="module" src="js/purchases.js"></script>
+
+<script>
+  const sidebar = document.getElementById("sidebar");
+  const overlay = document.getElementById("overlay");
+  const btnMenu = document.getElementById("btnMenu");
+
+  btnMenu.addEventListener("click", () => {
+    sidebar.classList.toggle("-translate-x-full");
+    overlay.classList.toggle("hidden");
+  });
+
+  overlay.addEventListener("click", () => {
+    sidebar.classList.add("-translate-x-full");
+    overlay.classList.add("hidden");
+  });
+</script>
+
+</body>
+</html>

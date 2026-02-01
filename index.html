@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kiosco App - Dashboard</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/dexie@latest/dist/dexie.js"></script>
+</head>
+
+<body class="bg-gray-100">
+
+<div class="flex min-h-screen">
+
+  <!-- Sidebar -->
+  <aside id="sidebar" class="fixed md:static inset-y-0 left-0 w-64 bg-gray-900 text-white p-4 transform -translate-x-full md:translate-x-0 transition-transform duration-300 z-50">
+
+    <h2 class="text-xl font-bold mb-6 text-center">🏪 Kiosco App</h2>
+
+    <nav class="space-y-2">
+
+      <a href="index.html" class="block px-4 py-3 rounded bg-gray-700">
+        📊 Dashboard
+      </a>
+
+      <a href="products.html" class="block px-4 py-3 rounded hover:bg-gray-700">
+        📦 Productos
+      </a>
+
+      <a href="purchases.html" class="block px-4 py-3 rounded hover:bg-gray-700">
+        🛒 Compras
+      </a>
+
+      <a href="sales.html" class="block px-4 py-3 rounded hover:bg-gray-700">
+        💰 Ventas
+      </a>
+
+    </nav>
+  </aside>
+
+  <!-- Overlay mobile -->
+  <div id="overlay" class="fixed inset-0 bg-black bg-opacity-40 hidden md:hidden"></div>
+
+  <!-- Main content -->
+  <main class="flex-1 p-4 md:p-6">
+
+    <!-- Top bar (mobile) -->
+    <div class="flex items-center justify-between mb-4 md:hidden">
+
+      <button id="btnMenu" class="text-2xl">
+        ☰
+      </button>
+
+      <h1 class="text-xl font-bold">Dashboard</h1>
+    </div>
+
+    <!-- Title desktop -->
+    <h1 class="hidden md:block text-2xl font-bold mb-6">
+      Dashboard
+    </h1>
+
+    <!-- Filtros -->
+    <div class="bg-white p-4 rounded-xl shadow mb-6 space-y-3 md:flex md:items-center md:space-y-0 md:space-x-4">
+
+      <div class="flex flex-col w-full md:w-auto">
+        <label class="text-sm text-gray-600">Desde</label>
+        <input type="date" id="desde" class="border p-2 rounded-lg">
+      </div>
+
+      <div class="flex flex-col w-full md:w-auto">
+        <label class="text-sm text-gray-600">Hasta</label>
+        <input type="date" id="hasta" class="border p-2 rounded-lg">
+      </div>
+
+      <button 
+        id="filtrar"
+        class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 py-2 mt-2 md:mt-5"
+      >
+        Filtrar
+      </button>
+
+    </div>
+
+    <!-- Métricas -->
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+
+      <div class="bg-white p-5 rounded-2xl shadow flex flex-col">
+        <span class="text-gray-500 text-sm">Total ventas</span>
+        <span id="totalVentas" class="text-2xl font-bold mt-2">$0</span>
+      </div>
+
+      <div class="bg-white p-5 rounded-2xl shadow flex flex-col">
+        <span class="text-gray-500 text-sm">Total compras</span>
+        <span id="totalCompras" class="text-2xl font-bold mt-2">$0</span>
+      </div>
+
+      <div class="bg-white p-5 rounded-2xl shadow flex flex-col">
+        <span class="text-gray-500 text-sm">Ganancia / Pérdida</span>
+        <span id="ganancia" class="text-2xl font-bold mt-2">$0</span>
+      </div>
+
+      <!-- Top productos -->
+      <div class="bg-white p-4 rounded shadow mt-6">
+
+        <h2 class="text-lg font-bold mb-3">
+          🔥 Productos más vendidos
+        </h2>
+
+        <ul id="topProductos" class="space-y-2"></ul>
+
+      </div>
+
+    </div>
+
+  </main>
+</div>
+
+<!-- Scripts -->
+<script type="module" src="js/db.js"></script>
+<script type="module" src="js/dashboard.js"></script>
+
+<!-- Sidebar mobile logic -->
+<script>
+  const sidebar = document.getElementById("sidebar");
+  const overlay = document.getElementById("overlay");
+  const btnMenu = document.getElementById("btnMenu");
+
+  btnMenu.addEventListener("click", () => {
+    sidebar.classList.toggle("-translate-x-full");
+    overlay.classList.toggle("hidden");
+  });
+
+  overlay.addEventListener("click", () => {
+    sidebar.classList.add("-translate-x-full");
+    overlay.classList.add("hidden");
+  });
+</script>
+
+</body>
+</html>
+

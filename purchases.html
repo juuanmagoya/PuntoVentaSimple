@@ -40,6 +40,19 @@
     <h1 class="hidden md:block text-2xl font-bold mb-6">Compras de productos</h1>
 
     <!-- Formulario -->
+      <!-- Buscador para compras (agregar después del título) -->
+  <div class="mb-6">
+    <div class="flex gap-3 items-center mb-2">
+      <h1 class="hidden md:block text-2xl font-bold">🛒 Compras de productos</h1>
+      <div id="estadisticasCompras" class="hidden md:flex gap-3"></div>
+    </div>
+    <input 
+      type="text" 
+      id="buscadorCompras"
+      placeholder="🔍 Buscar compra por producto, proveedor..."
+      class="w-full border p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400"
+    >
+  </div>
     <div class="bg-white p-4 md:p-6 rounded-2xl shadow mb-6">
 
       <h2 class="font-semibold mb-4 text-lg">➕ Agregar / Editar compra</h2>
@@ -88,22 +101,23 @@
       <!-- Mobile cards -->
       <div id="listaMobile" class="space-y-3 md:hidden"></div>
 
-      <!-- Desktop table -->
-      <div class="hidden md:block overflow-x-auto">
-        <table class="w-full border rounded-lg">
-          <thead class="bg-gray-200">
-            <tr>
-              <th class="p-2">Producto</th>
-              <th class="p-2">Cantidad</th>
-              <th class="p-2">Precio</th>
-              <th class="p-2">Proveedor</th>
-              <th class="p-2">Fecha</th>
-              <th class="p-2">Acciones</th>
-            </tr>
-          </thead>
-          <tbody id="tablaCompras"></tbody>
-        </table>
-      </div>
+  <!-- Tabla desktop actualizada -->
+  <div class="hidden md:block overflow-x-auto">
+    <table class="w-full border rounded-xl shadow-sm">
+      <thead class="bg-gray-100">
+        <tr>
+          <th class="p-3 text-left font-semibold text-gray-700">Producto</th>
+          <th class="p-3 text-center font-semibold text-gray-700">Cantidad</th>
+          <th class="p-3 text-center font-semibold text-gray-700">Precio Unitario</th>
+          <th class="p-3 text-center font-semibold text-gray-700">Subtotal</th>
+          <th class="p-3 text-center font-semibold text-gray-700">Proveedor</th>
+          <th class="p-3 text-center font-semibold text-gray-700">Fecha</th>
+          <th class="p-3 text-center font-semibold text-gray-700">Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tablaCompras" class="tabla-compras-contenedor"></tbody>
+    </table>
+  </div>
 
     </div>
 

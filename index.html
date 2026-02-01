@@ -3,10 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kiosco App - Dashboard</title>
+  <title>📊 Dashboard - Kiosco App</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/dexie@latest/dist/dexie.js"></script>
 </head>
 
 <body class="bg-gray-100">
@@ -15,27 +14,12 @@
 
   <!-- Sidebar -->
   <aside id="sidebar" class="fixed md:static inset-y-0 left-0 w-64 bg-gray-900 text-white p-4 transform -translate-x-full md:translate-x-0 transition-transform duration-300 z-50">
-
     <h2 class="text-xl font-bold mb-6 text-center">🏪 Kiosco App</h2>
-
     <nav class="space-y-2">
-
-      <a href="index.html" class="block px-4 py-3 rounded bg-gray-700">
-        📊 Dashboard
-      </a>
-
-      <a href="products.html" class="block px-4 py-3 rounded hover:bg-gray-700">
-        📦 Productos
-      </a>
-
-      <a href="purchases.html" class="block px-4 py-3 rounded hover:bg-gray-700">
-        🛒 Compras
-      </a>
-
-      <a href="sales.html" class="block px-4 py-3 rounded hover:bg-gray-700">
-        💰 Ventas
-      </a>
-
+      <a href="index.html" class="block px-4 py-3 rounded bg-gray-700">📊 Dashboard</a>
+      <a href="products.html" class="block px-4 py-3 rounded hover:bg-gray-700">📦 Productos</a>
+      <a href="purchases.html" class="block px-4 py-3 rounded hover:bg-gray-700">🛒 Compras</a>
+      <a href="sales.html" class="block px-4 py-3 rounded hover:bg-gray-700">💰 Ventas</a>
     </nav>
   </aside>
 
@@ -47,77 +31,165 @@
 
     <!-- Top bar (mobile) -->
     <div class="flex items-center justify-between mb-4 md:hidden">
-
-      <button id="btnMenu" class="text-2xl">
-        ☰
-      </button>
-
+      <button id="btnMenu" class="text-2xl">☰</button>
       <h1 class="text-xl font-bold">Dashboard</h1>
     </div>
 
     <!-- Title desktop -->
-    <h1 class="hidden md:block text-2xl font-bold mb-6">
-      Dashboard
-    </h1>
+    <h1 class="hidden md:block text-2xl font-bold mb-6">📊 Dashboard</h1>
 
     <!-- Filtros -->
-    <div class="bg-white p-4 rounded-xl shadow mb-6 space-y-3 md:flex md:items-center md:space-y-0 md:space-x-4">
-
-      <div class="flex flex-col w-full md:w-auto">
-        <label class="text-sm text-gray-600">Desde</label>
-        <input type="date" id="desde" class="border p-2 rounded-lg">
+    <div class="bg-white p-4 md:p-6 rounded-2xl shadow mb-6">
+      <h2 class="font-semibold mb-4 text-lg">📅 Filtros de período</h2>
+      <div class="space-y-4 md:flex md:items-end md:space-y-0 md:space-x-4">
+        <div class="flex-1">
+          <label class="text-sm text-gray-600 block mb-1">Desde</label>
+          <input type="date" id="desde" class="w-full border border-gray-300 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent">
+        </div>
+        <div class="flex-1">
+          <label class="text-sm text-gray-600 block mb-1">Hasta</label>
+          <input type="date" id="hasta" class="w-full border border-gray-300 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent">
+        </div>
+        <div class="flex gap-2">
+          <button id="filtrar" class="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-6 py-3 transition-colors duration-300 font-medium">
+            🔍 Filtrar
+          </button>
+          <button id="resetFiltros" class="bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-xl px-6 py-3 transition-colors duration-300 font-medium">
+            🔄 Hoy
+          </button>
+        </div>
       </div>
-
-      <div class="flex flex-col w-full md:w-auto">
-        <label class="text-sm text-gray-600">Hasta</label>
-        <input type="date" id="hasta" class="border p-2 rounded-lg">
-      </div>
-
-      <button 
-        id="filtrar"
-        class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 py-2 mt-2 md:mt-5"
-      >
-        Filtrar
-      </button>
-
+      <div id="rangoSeleccionado" class="text-sm text-gray-500 mt-3"></div>
     </div>
 
-    <!-- Métricas -->
-    <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-
-      <div class="bg-white p-5 rounded-2xl shadow flex flex-col">
-        <span class="text-gray-500 text-sm">Total ventas</span>
-        <span id="totalVentas" class="text-2xl font-bold mt-2">$0</span>
+    <!-- Métricas principales -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-6">
+      <!-- Ventas -->
+      <div class="bg-gradient-to-br from-green-50 to-green-100 p-5 md:p-6 rounded-2xl shadow border border-green-200">
+        <div class="flex justify-between items-start">
+          <div>
+            <div class="text-gray-600 text-sm font-medium mb-1">📈 Total Ventas</div>
+            <div id="totalVentas" class="text-2xl md:text-3xl font-bold text-green-800">$0</div>
+          </div>
+          <div class="text-3xl">💰</div>
+        </div>
+        <div class="mt-3">
+          <div class="text-sm text-gray-600">
+            <span id="cantidadVentas">0</span> transacciones
+          </div>
+          <div class="text-xs text-gray-500 mt-1">
+            <span id="productosVendidos">0</span> productos vendidos
+          </div>
+        </div>
       </div>
 
-      <div class="bg-white p-5 rounded-2xl shadow flex flex-col">
-        <span class="text-gray-500 text-sm">Total compras</span>
-        <span id="totalCompras" class="text-2xl font-bold mt-2">$0</span>
+      <!-- Compras -->
+      <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-5 md:p-6 rounded-2xl shadow border border-blue-200">
+        <div class="flex justify-between items-start">
+          <div>
+            <div class="text-gray-600 text-sm font-medium mb-1">🛒 Total Compras</div>
+            <div id="totalCompras" class="text-2xl md:text-3xl font-bold text-blue-800">$0</div>
+          </div>
+          <div class="text-3xl">📦</div>
+        </div>
+        <div class="mt-3">
+          <div class="text-sm text-gray-600">
+            <span id="cantidadCompras">0</span> compras registradas
+          </div>
+          <div class="text-xs text-gray-500 mt-1">
+            <span id="productosComprados">0</span> productos comprados
+          </div>
+        </div>
       </div>
 
-      <div class="bg-white p-5 rounded-2xl shadow flex flex-col">
-        <span class="text-gray-500 text-sm">Ganancia / Pérdida</span>
-        <span id="ganancia" class="text-2xl font-bold mt-2">$0</span>
+      <!-- Ganancia -->
+      <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-5 md:p-6 rounded-2xl shadow border border-purple-200">
+        <div class="flex justify-between items-start">
+          <div>
+            <div class="text-gray-600 text-sm font-medium mb-1">📊 Ganancia Neta</div>
+            <div id="ganancia" class="text-2xl md:text-3xl font-bold text-purple-800">$0</div>
+          </div>
+          <div class="text-3xl">💹</div>
+        </div>
+        <div class="mt-3">
+          <div class="text-sm text-gray-600">
+            Margen: <span id="margenGanancia" class="font-semibold">0%</span>
+          </div>
+          <div id="estadoGanancia" class="text-xs px-2 py-1 rounded-full inline-block mt-1">
+            Cargando...
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Secciones inferiores -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+      <!-- Top productos más vendidos -->
+      <div class="bg-white p-5 md:p-6 rounded-2xl shadow">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-lg font-bold flex items-center gap-2">
+            <span class="text-2xl">🔥</span> Productos Más Vendidos
+          </h2>
+          <span class="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded-full">
+            <span id="contadorTopProductos">0</span> productos
+          </span>
+        </div>
+        <div id="topProductos" class="space-y-2">
+          <div class="text-center py-8 text-gray-400">
+            <div class="text-4xl mb-2">📊</div>
+            <div>Cargando datos...</div>
+          </div>
+        </div>
       </div>
 
-      <!-- Top productos -->
-      <div class="bg-white p-4 rounded shadow mt-6">
-
-        <h2 class="text-lg font-bold mb-3">
-          🔥 Productos más vendidos
-        </h2>
-
-        <ul id="topProductos" class="space-y-2"></ul>
-
+      <!-- Últimas ventas -->
+      <div class="bg-white p-5 md:p-6 rounded-2xl shadow">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-lg font-bold flex items-center gap-2">
+            <span class="text-2xl">⏱️</span> Últimas Ventas
+          </h2>
+          <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+            Hoy: <span id="ventasHoy">0</span>
+          </span>
+        </div>
+        <div id="ultimasVentas" class="space-y-3">
+          <div class="text-center py-8 text-gray-400">
+            <div class="text-4xl mb-2">🕒</div>
+            <div>Cargando ventas...</div>
+          </div>
+        </div>
       </div>
+    </div>
 
+    <!-- Métricas adicionales -->
+    <div class="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+      <div class="bg-white p-3 md:p-4 rounded-xl shadow text-center">
+        <div class="text-2xl mb-1">📦</div>
+        <div class="text-sm text-gray-600">Total Productos</div>
+        <div id="totalProductos" class="text-lg font-bold">0</div>
+      </div>
+      <div class="bg-white p-3 md:p-4 rounded-xl shadow text-center">
+        <div class="text-2xl mb-1">🏪</div>
+        <div class="text-sm text-gray-600">Venta Promedio</div>
+        <div id="ventaPromedio" class="text-lg font-bold">$0</div>
+      </div>
+      <div class="bg-white p-3 md:p-4 rounded-xl shadow text-center">
+        <div class="text-2xl mb-1">📅</div>
+        <div class="text-sm text-gray-600">Días en Período</div>
+        <div id="diasPeriodo" class="text-lg font-bold">0</div>
+      </div>
+      <div class="bg-white p-3 md:p-4 rounded-xl shadow text-center">
+        <div class="text-2xl mb-1">⚡</div>
+        <div class="text-sm text-gray-600">Ventas/Día</div>
+        <div id="ventasPorDia" class="text-lg font-bold">0</div>
+      </div>
     </div>
 
   </main>
 </div>
 
 <!-- Scripts -->
-<script type="module" src="js/db.js"></script>
+<script type="module" src="js/supabase.js"></script>
 <script type="module" src="js/dashboard.js"></script>
 
 <!-- Sidebar mobile logic -->
@@ -139,4 +211,3 @@
 
 </body>
 </html>
-

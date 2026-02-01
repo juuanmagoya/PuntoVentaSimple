@@ -3,39 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kiosco App - Productos</title>
+  <title>📦 Productos - Kiosco App</title>
 
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/dexie@latest/dist/dexie.js"></script>
+  <!-- Supabase JS (ya lo importamos en products.js) -->
 </head>
-
 <body class="bg-gray-100">
 
 <div class="flex min-h-screen">
 
   <!-- Sidebar -->
   <aside id="sidebar" class="fixed md:static inset-y-0 left-0 w-64 bg-gray-900 text-white p-4 transform -translate-x-full md:translate-x-0 transition-transform duration-300 z-50">
-
     <h2 class="text-xl font-bold mb-6 text-center">🏪 Kiosco App</h2>
-
     <nav class="space-y-2">
-
-      <a href="index.html" class="block px-4 py-3 rounded hover:bg-gray-700">
-        📊 Dashboard
-      </a>
-
-      <a href="products.html" class="block px-4 py-3 rounded bg-gray-700">
-        📦 Productos
-      </a>
-
-      <a href="purchases.html" class="block px-4 py-3 rounded hover:bg-gray-700">
-        🛒 Compras
-      </a>
-
-      <a href="sales.html" class="block px-4 py-3 rounded hover:bg-gray-700">
-        💰 Ventas
-      </a>
-
+      <a href="index.html" class="block px-4 py-3 rounded hover:bg-gray-700">📊 Dashboard</a>
+      <a href="products.html" class="block px-4 py-3 rounded bg-gray-700">📦 Productos</a>
+      <a href="purchases.html" class="block px-4 py-3 rounded hover:bg-gray-700">🛒 Compras</a>
+      <a href="sales.html" class="block px-4 py-3 rounded hover:bg-gray-700">💰 Ventas</a>
     </nav>
   </aside>
 
@@ -44,31 +29,32 @@
   <!-- Main -->
   <main class="flex-1 p-4 md:p-6">
 
-    <!-- Mobile header -->
+    <!-- Mobile top bar -->
     <div class="flex items-center justify-between mb-4 md:hidden">
       <button id="btnMenu" class="text-2xl">☰</button>
       <h1 class="text-xl font-bold">Productos</h1>
     </div>
 
-    <h1 class="hidden md:block text-2xl font-bold mb-6">Productos</h1>
+    <!-- Desktop title -->
+    <h1 class="hidden md:block text-2xl font-bold mb-6">📦 Productos</h1>
 
     <!-- Buscador -->
     <div class="mb-4">
       <input 
-        type="text"
+        type="text" 
         id="buscadorProductos"
         placeholder="🔍 Buscar producto..."
-        class="w-full border p-2 rounded-lg focus:ring focus:ring-blue-300"
+        class="w-full border p-2 rounded focus:outline-none focus:ring focus:ring-blue-300"
       >
     </div>
 
     <!-- Formulario -->
+     
     <div class="bg-white p-4 md:p-6 rounded-2xl shadow mb-6">
-
+      
       <h2 class="font-semibold mb-4 text-lg">➕ Agregar / Editar producto</h2>
 
       <form id="formProducto" class="space-y-4 md:grid md:grid-cols-3 md:gap-4 md:space-y-0">
-
         <input type="hidden" id="productoId">
 
         <div>
@@ -89,42 +75,42 @@
         <button class="bg-green-600 hover:bg-green-700 text-white rounded-lg py-2 md:col-span-3">
           Guardar producto
         </button>
-
       </form>
     </div>
 
     <!-- Listado -->
     <div class="bg-white p-4 md:p-6 rounded-2xl shadow">
-
       <h2 class="font-semibold mb-4 text-lg">📋 Productos</h2>
 
-      <!-- Mobile -->
+      <!-- Mobile cards -->
       <div id="listaMobile" class="space-y-3 md:hidden"></div>
 
-      <!-- Desktop -->
+      <!-- Desktop table -->
       <div class="hidden md:block overflow-x-auto">
-        <table class="w-full border rounded-lg">
-          <thead class="bg-gray-200">
+        <table class="w-full border rounded-xl shadow-sm">
+          <thead class="bg-gray-100">
             <tr>
-              <th class="p-2 text-left">Nombre</th>
-              <th class="p-2">Precio venta</th>
-              <th class="p-2">Precio compra</th>
-              <th class="p-2">Acciones</th>
+              <th class="p-3 text-left font-semibold text-gray-700">Nombre</th>
+              <th class="p-3 text-center font-semibold text-gray-700">Precio Venta</th>
+              <th class="p-3 text-center font-semibold text-gray-700">Precio Compra</th>
+              <th class="p-3 text-center font-semibold text-gray-700">Ganancia</th>
+              <th class="p-3 text-center font-semibold text-gray-700">Acciones</th>
             </tr>
           </thead>
           <tbody id="tablaProductos"></tbody>
         </table>
       </div>
-
     </div>
 
   </main>
 </div>
 
-<script type="module" src="js/db.js"></script>
+<!-- Scripts -->
+<script type="module" src="js/supabase.js"></script>
 <script type="module" src="js/products.js"></script>
 
 <script>
+  // Sidebar mobile toggle
   const sidebar = document.getElementById("sidebar");
   const overlay = document.getElementById("overlay");
   const btnMenu = document.getElementById("btnMenu");

@@ -23,7 +23,7 @@ cargarProductos();
 cargarCompras();
 
 // =====================
-// Cargar productos para el select CON BUSCADOR
+// Cargar productos para el select
 // =====================
 async function cargarProductos() {
   try {
@@ -37,25 +37,46 @@ async function cargarProductos() {
     productosCache = data || [];
     productosFiltrados = [...productosCache];
     
-    // Reemplazar el select por nuestro custom select con buscador
-    reemplazarSelectConBuscador();
+    // Actualizar el select original con los productos
+    actualizarSelectOriginal();
     
-    if (productosCache.length === 0) {
-      mostrarMensajeSinProductos();
+    // Si hay productos, reemplazar por custom select
+    if (productosCache.length > 0) {
+      reemplazarSelectConBuscador();
     } else {
-      actualizarContadorProductos();
+      mostrarMensajeSinProductos();
     }
     
+    actualizarContadorProductos();
+    
   } catch (error) {
-    console.error(error);
+    console.error("Error cargando productos:", error);
     mostrarNotificacion("❌ Error al cargar productos", "error");
   }
+}
+
+// =====================
+// Actualizar select original (oculto)
+// =====================
+function actualizarSelectOriginal() {
+  selectProducto.innerHTML = '<option value="">Seleccionar producto</option>';
+  
+  productosCache.forEach(producto => {
+    const option = document.createElement("option");
+    option.value = producto.id;
+    option.textContent = `${producto.nombre} - $${producto.precio_compra}`;
+    option.dataset.nombre = producto.nombre;
+    selectProducto.appendChild(option);
+  });
 }
 
 // =====================
 // Reemplazar select por custom select con buscador
 // =====================
 function reemplazarSelectConBuscador() {
+  // Si ya existe el custom select, no hacer nada
+  if (document.getElementById("customSelectContainer")) return;
+  
   const contenedorOriginal = selectProducto.parentElement;
   
   // Crear contenedor del custom select
@@ -73,7 +94,8 @@ function reemplazarSelectConBuscador() {
   
   // Icono de flecha
   const flechaIcono = document.createElement("div");
-  flechaIcono.className = "absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none";
+  flechaIcono.className = "absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none transition-transform";
+  flechaIcono.id = "flechaIcono";
   flechaIcono.innerHTML = "▼";
   
   // Dropdown con buscador
@@ -108,7 +130,6 @@ function reemplazarSelectConBuscador() {
   
   // Reemplazar el select original
   contenedorOriginal.insertBefore(customSelectContainer, selectProducto);
-  selectProducto.style.display = "none";
   
   // Configurar eventos
   configurarEventosSelectCustom(displayInput, dropdown, searchInput, resultadosContainer, contadorResultados);
@@ -124,10 +145,15 @@ function configurarEventosSelectCustom(displayInput, dropdown, searchInput, resu
     selectAbierto = !selectAbierto;
     dropdown.classList.toggle("hidden", !selectAbierto);
     
+    // Rotar flecha
+    const flecha = document.getElementById("flechaIcono");
     if (selectAbierto) {
+      flecha.style.transform = "translateY(-50%) rotate(180deg)";
       searchInput.value = "";
       filtrarProductos("", resultadosContainer, contadorResultados);
       searchInput.focus();
+    } else {
+      flecha.style.transform = "translateY(-50%) rotate(0deg)";
     }
   });
   
@@ -136,6 +162,8 @@ function configurarEventosSelectCustom(displayInput, dropdown, searchInput, resu
     if (!e.target.closest("#customSelectContainer")) {
       selectAbierto = false;
       dropdown.classList.add("hidden");
+      const flecha = document.getElementById("flechaIcono");
+      flecha.style.transform = "translateY(-50%) rotate(0deg)";
     }
   });
   
@@ -149,6 +177,8 @@ function configurarEventosSelectCustom(displayInput, dropdown, searchInput, resu
     if (e.key === "Escape") {
       selectAbierto = false;
       dropdown.classList.add("hidden");
+      const flecha = document.getElementById("flechaIcono");
+      flecha.style.transform = "translateY(-50%) rotate(0deg)";
     }
     if (e.key === "Enter" && productosFiltrados.length === 1) {
       seleccionarProducto(productosFiltrados[0]);
@@ -218,14 +248,8 @@ function renderizarResultadosBusqueda(resultadosContainer) {
       seleccionarProducto(producto);
       document.getElementById("productosDropdown").classList.add("hidden");
       selectAbierto = false;
-    });
-    
-    item.addEventListener("mouseenter", () => {
-      item.classList.add("bg-blue-50");
-    });
-    
-    item.addEventListener("mouseleave", () => {
-      item.classList.remove("bg-blue-50");
+      const flecha = document.getElementById("flechaIcono");
+      flecha.style.transform = "translateY(-50%) rotate(0deg)";
     });
     
     resultadosContainer.appendChild(item);
@@ -237,7 +261,9 @@ function renderizarResultadosBusqueda(resultadosContainer) {
 // =====================
 function seleccionarProducto(producto) {
   const displayInput = document.getElementById("selectDisplay");
-  displayInput.value = producto.nombre;
+  if (displayInput) {
+    displayInput.value = producto.nombre;
+  }
   
   // Actualizar el select original oculto
   selectProducto.value = producto.id;
@@ -245,12 +271,13 @@ function seleccionarProducto(producto) {
   // Actualizar precio si está vacío
   if (precioInput && !precioInput.value) {
     precioInput.value = producto.precio_compra;
-    mostrarNotificacion(`💰 Precio sugerido: $${producto.precio_compra}`, "info");
   }
   
   // Agregar estilo de selección
-  displayInput.classList.remove("border-gray-300");
-  displayInput.classList.add("border-blue-500", "bg-blue-50");
+  if (displayInput) {
+    displayInput.classList.remove("border-gray-300");
+    displayInput.classList.add("border-blue-500", "bg-blue-50");
+  }
   
   // Enfocar cantidad
   if (cantidadInput) {
@@ -282,7 +309,7 @@ function actualizarContadorProductos() {
 }
 
 // =====================
-// Guardar / editar compra
+// Guardar / editar compra - CORREGIDO
 // =====================
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -293,29 +320,41 @@ form.addEventListener("submit", async (e) => {
     return;
   }
 
-  const compra = {
-    producto_id: Number(selectProducto.value),
-    cantidad: Number(cantidadInput.value),
-    precio_compra: Number(precioInput.value),
-    proveedor: proveedorInput.value.trim(),
-    fecha: fechaInput.value
-  };
-
-  // Validaciones
-  if (!compra.producto_id) {
+  // CORRECCIÓN: Verificar que se haya seleccionado un producto
+  const productoId = Number(selectProducto.value);
+  if (!productoId || productoId === 0 || selectProducto.value === "") {
     mostrarNotificacion("❌ Selecciona un producto", "error");
     const displayInput = document.getElementById("selectDisplay");
     if (displayInput) displayInput.focus();
     return;
   }
 
-  if (compra.cantidad <= 0) {
+  // CORRECCIÓN: Asegurarnos que la fecha esté en formato correcto
+  let fechaSeleccionada = fechaInput.value;
+  if (!fechaSeleccionada) {
+    const hoy = new Date();
+    fechaSeleccionada = hoy.toISOString().split('T')[0];
+    fechaInput.value = fechaSeleccionada;
+  }
+
+  const compra = {
+    producto_id: productoId,
+    cantidad: Number(cantidadInput.value),
+    precio_compra: Number(precioInput.value),
+    proveedor: proveedorInput.value.trim(),
+    fecha: fechaSeleccionada
+  };
+
+  console.log("Datos a guardar:", compra);
+
+  // Validaciones
+  if (compra.cantidad <= 0 || isNaN(compra.cantidad)) {
     mostrarNotificacion("❌ La cantidad debe ser mayor a 0", "error");
     cantidadInput.focus();
     return;
   }
 
-  if (compra.precio_compra <= 0) {
+  if (compra.precio_compra <= 0 || isNaN(compra.precio_compra)) {
     mostrarNotificacion("❌ El precio debe ser mayor a 0", "error");
     precioInput.focus();
     return;
@@ -344,6 +383,7 @@ form.addEventListener("submit", async (e) => {
         .eq("id", id);
 
       if (error) throw error;
+      
       mostrarNotificacion("✅ Compra actualizada correctamente");
     } else {
       // Crear nueva compra
@@ -352,6 +392,7 @@ form.addEventListener("submit", async (e) => {
         .insert([compra]);
 
       if (error) throw error;
+      
       mostrarNotificacion("✅ Compra registrada correctamente");
     }
 
@@ -359,8 +400,8 @@ form.addEventListener("submit", async (e) => {
     await cargarCompras();
     
   } catch (error) {
-    console.error(error);
-    mostrarNotificacion("❌ Error al guardar la compra", "error");
+    console.error("Error completo al guardar:", error);
+    mostrarNotificacion("❌ Error al guardar la compra: " + error.message, "error");
   } finally {
     boton.disabled = false;
     boton.textContent = textoOriginal;
@@ -368,24 +409,15 @@ form.addEventListener("submit", async (e) => {
 });
 
 // =====================
-// Cargar compras desde Supabase
+// Cargar compras desde Supabase - CORREGIDO
 // =====================
 async function cargarCompras() {
-  const contenedor = tabla.parentElement;
-  const estadoCarga = document.createElement("div");
-  estadoCarga.className = "p-8 text-center text-gray-500";
-  estadoCarga.innerHTML = '<span class="animate-spin mr-2">⟳</span>Cargando compras...';
-  
-  const tablaExistente = contenedor.querySelector(".tabla-compras-contenedor");
-  if (tablaExistente) tablaExistente.style.opacity = "0.5";
-  else contenedor.appendChild(estadoCarga);
-
   try {
     const { data, error } = await supabase
       .from("compras")
       .select(`
         *,
-        productos:producto_id (nombre)
+        productos (nombre)
       `)
       .order("fecha", { ascending: false })
       .order("id", { ascending: false });
@@ -393,6 +425,7 @@ async function cargarCompras() {
     if (error) throw error;
 
     comprasCache = data || [];
+    console.log("Compras cargadas:", comprasCache);
     renderizarCompras(comprasCache);
     
     if (comprasCache.length === 0) {
@@ -400,16 +433,13 @@ async function cargarCompras() {
     }
 
   } catch (error) {
-    console.error(error);
-    mostrarNotificacion("❌ Error al cargar compras", "error");
-  } finally {
-    if (tablaExistente) tablaExistente.style.opacity = "1";
-    else estadoCarga.remove();
+    console.error("Error completo al cargar compras:", error);
+    mostrarNotificacion("❌ Error al cargar compras: " + error.message, "error");
   }
 }
 
 // =====================
-// Renderizar compras
+// Renderizar compras - CORREGIDO
 // =====================
 function renderizarCompras(lista) {
   tabla.innerHTML = "";
@@ -442,20 +472,26 @@ function renderizarCompras(lista) {
   let totalCantidad = 0;
 
   lista.forEach((compra, index) => {
+    // CORRECCIÓN: Acceder correctamente a los datos del producto
     const productoNombre = compra.productos?.nombre || "Producto eliminado";
     const subtotal = compra.cantidad * compra.precio_compra;
     totalInversion += subtotal;
     totalCantidad += compra.cantidad;
     
-    // Formatear fecha
-    const fechaObj = new Date(compra.fecha);
-    const fechaFormateada = fechaObj.toLocaleDateString('es-ES', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
-    });
+    // Formatear fecha - CORRECCIÓN: Manejar diferentes formatos de fecha
+    let fechaFormateada;
+    try {
+      const fechaObj = new Date(compra.fecha);
+      fechaFormateada = fechaObj.toLocaleDateString('es-ES', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      });
+    } catch (e) {
+      fechaFormateada = compra.fecha || "Fecha inválida";
+    }
     
-    const esReciente = (new Date() - fechaObj) < (7 * 24 * 60 * 60 * 1000); // Últimos 7 días
+    const esReciente = (new Date() - new Date(compra.fecha)) < (7 * 24 * 60 * 60 * 1000);
 
     // Desktop
     const filaDesktop = document.createElement("tr");
@@ -577,7 +613,7 @@ function renderizarCompras(lista) {
 }
 
 // =====================
-// Editar compra
+// Editar compra - CORREGIDO
 // =====================
 window.editarCompra = async (id) => {
   try {
@@ -585,21 +621,26 @@ window.editarCompra = async (id) => {
       .from("compras")
       .select(`
         *,
-        productos:producto_id (nombre)
+        productos (nombre)
       `)
       .eq("id", id)
       .single();
 
     if (error) throw error;
 
+    console.log("Compra cargada para editar:", data);
+
     compraIdInput.value = data.id;
     
     // Actualizar custom select
     const displayInput = document.getElementById("selectDisplay");
     if (displayInput) {
-      displayInput.value = data.productos?.nombre || "";
-      displayInput.classList.remove("border-gray-300");
-      displayInput.classList.add("border-blue-500", "bg-blue-50");
+      const productoSeleccionado = productosCache.find(p => p.id === data.producto_id);
+      if (productoSeleccionado) {
+        displayInput.value = productoSeleccionado.nombre;
+        displayInput.classList.remove("border-gray-300");
+        displayInput.classList.add("border-blue-500", "bg-blue-50");
+      }
     }
     
     // Actualizar select original
@@ -608,10 +649,23 @@ window.editarCompra = async (id) => {
     cantidadInput.value = data.cantidad;
     precioInput.value = data.precio_compra;
     proveedorInput.value = data.proveedor;
-    fechaInput.value = data.fecha;
+    
+    // Formatear fecha correctamente
+    if (data.fecha) {
+      try {
+        const fechaObj = new Date(data.fecha);
+        if (!isNaN(fechaObj.getTime())) {
+          fechaInput.value = fechaObj.toISOString().split('T')[0];
+        } else {
+          fechaInput.value = data.fecha;
+        }
+      } catch (e) {
+        fechaInput.value = data.fecha;
+      }
+    }
 
     // Cambiar título del formulario
-    const tituloForm = form.querySelector("h2");
+    const tituloForm = document.querySelector("#formCompra h2");
     if (tituloForm) tituloForm.textContent = "✏️ Editando compra";
     
     // Cambiar texto del botón
@@ -628,8 +682,8 @@ window.editarCompra = async (id) => {
     mostrarNotificacion("✏️ Editando compra. Modifica los campos y guarda.", "info");
 
   } catch (error) {
-    console.error(error);
-    mostrarNotificacion("❌ Error al cargar la compra", "error");
+    console.error("Error completo al editar compra:", error);
+    mostrarNotificacion("❌ Error al cargar la compra: " + error.message, "error");
   }
 };
 
@@ -675,8 +729,12 @@ window.eliminarCompra = async (id) => {
 // Limpiar formulario
 // =====================
 function limpiarFormulario() {
-  form.reset();
   compraIdInput.value = "";
+  cantidadInput.value = "";
+  precioInput.value = "";
+  proveedorInput.value = "";
+  
+  // Establecer fecha actual por defecto
   fechaInput.valueAsDate = new Date();
   
   // Limpiar custom select
@@ -691,39 +749,28 @@ function limpiarFormulario() {
     }
   }
   
+  // Resetear select original
+  selectProducto.value = "";
+  
   // Restaurar título y botón
-  const tituloForm = form.querySelector("h2");
-  if (tituloForm) tituloForm.textContent = "➕ Agregar compra";
+  const tituloForm = document.querySelector("#formCompra h2");
+  if (tituloForm) tituloForm.textContent = "➕ Agregar / Editar compra";
   
   const boton = form.querySelector("button");
   boton.innerHTML = '<span>➕</span> Guardar compra';
   boton.className = boton.className.replace("bg-blue-600 hover:bg-blue-700", "bg-green-600 hover:bg-green-700");
   
   // Enfocar campo producto
-  if (productosCache.length > 0) {
-    const displayInput = document.getElementById("selectDisplay");
-    if (displayInput) displayInput.focus();
+  if (productosCache.length > 0 && displayInput) {
+    displayInput.focus();
   }
 }
-
-// =====================
-// Cuando cambia el producto, sugerir precio de compra
-// =====================
-selectProducto.addEventListener("change", () => {
-  const productoId = Number(selectProducto.value);
-  if (!productoId) return;
-  
-  const producto = productosCache.find(p => p.id === productoId);
-  if (producto && producto.precio_compra && !precioInput.value) {
-    precioInput.value = producto.precio_compra;
-    mostrarNotificacion(`💰 Precio sugerido: $${producto.precio_compra}`, "info");
-  }
-});
 
 // =====================
 // Utilidades: Notificaciones
 // =====================
 function mostrarNotificacion(mensaje, tipo = "success") {
+  // Código de notificaciones sin cambios...
   const notificacionAnterior = document.querySelector(".notificacion-flotante");
   if (notificacionAnterior) notificacionAnterior.remove();
 
@@ -755,6 +802,7 @@ function mostrarNotificacion(mensaje, tipo = "success") {
 // Utilidades: Confirmación personalizada
 // =====================
 function mostrarConfirmacion(titulo, mensaje, tipo = "warning") {
+  // Código de confirmación sin cambios...
   return new Promise((resolve) => {
     const modal = document.createElement("div");
     modal.className = "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4";
@@ -804,7 +852,7 @@ function mostrarConfirmacion(titulo, mensaje, tipo = "warning") {
 }
 
 // =====================
-// Inicialización adicional
+// Inicialización
 // =====================
 document.addEventListener("DOMContentLoaded", () => {
   // Agregar contador de productos
@@ -815,67 +863,4 @@ document.addEventListener("DOMContentLoaded", () => {
     contadorProductos.className = "text-xs text-gray-500 mt-1";
     productoContainer.appendChild(contadorProductos);
   }
-  
-  // Agregar estadísticas rápidas
-  const header = document.querySelector("h1");
-  if (header) {
-    const statsContainer = document.createElement("div");
-    statsContainer.className = "flex gap-4 mt-2 text-sm";
-    header.parentNode.insertBefore(statsContainer, header.nextSibling);
-    
-    function actualizarEstadisticas() {
-      const totalCompras = comprasCache.length;
-      const totalInversion = comprasCache.reduce((sum, c) => 
-        sum + (c.cantidad * c.precio_compra), 0);
-      
-      statsContainer.innerHTML = `
-        <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full">
-          🛒 ${totalCompras} compra${totalCompras !== 1 ? 's' : ''}
-        </span>
-        <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full">
-          💰 $${totalInversion.toFixed(2)} invertido
-        </span>
-      `;
-    }
-    
-    // Actualizar cuando se carguen compras
-    const originalCargarCompras = cargarCompras;
-    cargarCompras = async function() {
-      await originalCargarCompras();
-      actualizarEstadisticas();
-    };
-  }
-  
-  // Agregar estilos CSS adicionales
-  const style = document.createElement('style');
-  style.textContent = `
-    #productosResultados::-webkit-scrollbar {
-      width: 6px;
-    }
-    #productosResultados::-webkit-scrollbar-track {
-      background: #f1f1f1;
-      border-radius: 3px;
-    }
-    #productosResultados::-webkit-scrollbar-thumb {
-      background: #888;
-      border-radius: 3px;
-    }
-    #productosResultados::-webkit-scrollbar-thumb:hover {
-      background: #555;
-    }
-    #productosDropdown {
-      animation: fadeIn 0.2s ease-out;
-    }
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(-10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-  `;
-  document.head.appendChild(style);
 });

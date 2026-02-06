@@ -473,3 +473,72 @@ document.addEventListener("DOMContentLoaded", () => {
     index = (index + 1) % ejemplos.length;
   }, 3000);
 });
+
+// =====================
+// Descargar PDF de productos
+// =====================
+const btnPDF = document.getElementById("btnDescargarPDF");
+
+if (btnPDF) {
+  btnPDF.addEventListener("click", () => {
+    generarPDFProductos();
+  });
+}
+
+function generarPDFProductos() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF("p", "mm", "a4");
+
+  // Título
+  doc.setFontSize(18);
+  doc.text("Listado de Productos", 14, 18);
+
+  doc.setFontSize(11);
+  doc.setTextColor(100);
+  doc.text(`Generado: ${new Date().toLocaleString()}`, 14, 26);
+
+  // Armamos las filas de la tabla
+  const filas = productosCache.map((p) => {
+    const ganancia = p.precio_venta - p.precio_compra;
+
+    return [
+      p.id,
+      p.nombre,
+      `$${p.precio_venta.toFixed(2)}`,
+      `$${p.precio_compra.toFixed(2)}`,
+      `$${ganancia.toFixed(2)}`
+    ];
+  });
+
+  // Tabla
+  doc.autoTable({
+    startY: 35,
+    head: [[
+      "ID",
+      "Producto",
+      "Precio Venta",
+      "Precio Compra",
+      "Ganancia"
+    ]],
+    body: filas,
+    theme: "striped",
+    styles: {
+      fontSize: 10,
+      cellPadding: 3
+    },
+    headStyles: {
+      fillColor: [37, 99, 235], // azul
+      textColor: 255,
+      fontStyle: "bold"
+    },
+    columnStyles: {
+      0: { cellWidth: 15 },
+      1: { cellWidth: 60 },
+      2: { halign: "right" },
+      3: { halign: "right" },
+      4: { halign: "right" }
+    }
+  });
+
+  doc.save("productos.pdf");
+}
